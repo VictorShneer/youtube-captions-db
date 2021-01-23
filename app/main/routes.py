@@ -48,7 +48,7 @@ def search_for_caption():
         per_page = 10
     try:
         captions, total = Caption.search(q, page = page, per_page=per_page)
-    except AttributeError, TypeError:
+    except (AttributeError, TypeError):
         return {'message':'looks like there is not a page'}
     captions = [caption.__repr__() for caption in captions.all()]
     return {'captions':captions}
