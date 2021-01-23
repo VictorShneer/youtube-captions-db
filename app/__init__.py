@@ -27,11 +27,21 @@ def create_app(adminFlag=True,config_class=Config):
     migrate.init_app(app,db)
     login.init_app(app)
     bootstrap.init_app(app)
+
+    from urllib.parse import urlparse
+    url = urlparse(os.environ.get('SEARCHBOX_URL'))
+    
+    # app.elasticsearch = Elasticsearch(
+    #     [url.host],
+    #     http_auth=(url.username, url.password),
+    #     scheme=url.scheme,
+    #     port=url.port,
+    # )
     app.elasticsearch = Elasticsearch([app.config['ELASTICSEARCH_URL']]) \
         if app.config['ELASTICSEARCH_URL'] else None
 
     app.elasticsearch.indices.create(index='caption', ignore=400)
-    
+
     #ADMIN PANEL
     if (adminFlag):
         from app.admin.admin_sec import MyAdminIndexView
