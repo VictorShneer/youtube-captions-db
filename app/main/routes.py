@@ -25,6 +25,9 @@ def write_caption(token):
     caption_json = request.get_json()
     if not caption_json:
         abort(403)
+    caption_check = Caption.query.filter_by(video_id=caption_json['video_id']).first()
+    if caption_check:
+        return {'message':caption_json['video_id']+' already collected'}
     caption = Caption(text=caption_json['text'], start=caption_json['start'], duration=caption_json['duration'], video_id=caption_json['video_id'])
     db.session.add(caption)
     db.session.commit()
