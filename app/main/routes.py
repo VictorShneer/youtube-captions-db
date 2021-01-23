@@ -1,0 +1,44 @@
+"""
+main routes
+"""
+
+from flask import request
+from flask import abort
+from flask_login import login_required
+from flask_login import current_user
+from app import db
+from app.main import bp
+from app.models import Caption
+from app.main.sec_utils import token_required
+
+@bp.route('/get_token')
+@login_required
+def get_token():
+    token = current_user.get_token()
+    return {'token':token}
+
+
+@bp.route('/write_caption/<token>', methods=['POST'])
+@token_required
+def write_caption(token):
+    print('Token OK')
+    caption_json = request.get_json()
+    if not caption_json:
+        abort(403)
+    caption = Caption(text=caption_json['text'], start=caption_json['start'], duration=caption_json['duration'], video_id=caption_json['video_id'])
+    db.session.add(caption)
+    db.session.commit()
+    return {'message':'הכל בסדר'}
+
+
+@bp.route('/search_for_caption/')
+def search_for_caption():
+    q = request.args.get('q')
+    page = int(request.args.get('page'))
+    per_page = int(request.args.get('per_page'))
+    try:
+        captions, total = Caption.search(q, page = (page if page else 1), per_page=(per_page if per_page else 20))
+    except:
+        return {'message':'oops!'}
+    captions = [caption.__repr__() for caption in captions.all()]
+    return {'captions':captions}
