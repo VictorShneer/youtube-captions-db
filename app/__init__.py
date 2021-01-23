@@ -31,12 +31,6 @@ def create_app(adminFlag=True,config_class=Config):
     from urllib.parse import urlparse
     url = urlparse(os.environ.get('SEARCHBOX_URL'))
     
-    # app.elasticsearch = Elasticsearch(
-    #     [url.host],
-    #     http_auth=(url.username, url.password),
-    #     scheme=url.scheme,
-    #     port=url.port,
-    # )
     app.elasticsearch = Elasticsearch([app.config['ELASTICSEARCH_URL']]) \
         if app.config['ELASTICSEARCH_URL'] else None
 
