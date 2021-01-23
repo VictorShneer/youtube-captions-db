@@ -37,11 +37,15 @@ def write_caption(token):
 @bp.route('/search_for_caption/')
 def search_for_caption():
     q = request.args.get('q')
-    page = int(request.args.get('page'))
-    per_page = int(request.args.get('per_page'))
     try:
-        captions, total = Caption.search(q, page = (page if page else 1), per_page=(per_page if per_page else 20))
+        page = int(request.args.get('page'))
     except:
-        return {'message':'oops!'}
+        page = 1
+    try:
+        per_page = int(request.args.get('per_page'))
+    except:
+        per_page = 10
+    
+    captions, total = Caption.search(q, page = page, per_page=per_page)
     captions = [caption.__repr__() for caption in captions.all()]
     return {'captions':captions}
