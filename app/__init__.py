@@ -27,6 +27,10 @@ def create_app(adminFlag=True,config_class=Config):
     migrate.init_app(app,db)
     login.init_app(app)
     bootstrap.init_app(app)
+    app.elasticsearch = Elasticsearch([app.config['ELASTICSEARCH_URL']]) \
+        if app.config['ELASTICSEARCH_URL'] else None
+
+    app.elasticsearch.indices.create(index='caption', ignore=400)
     
     #ADMIN PANEL
     if (adminFlag):
@@ -54,9 +58,6 @@ def create_app(adminFlag=True,config_class=Config):
     # blueprint for error handlers
     from app.errors import bp as errors_bp
     app.register_blueprint(errors_bp)
-
-    app.elasticsearch = Elasticsearch([app.config['ELASTICSEARCH_URL']]) \
-        if app.config['ELASTICSEARCH_URL'] else None
 
     if not app.debug and not app.testing:
         if not os.path.exists('logs'):
