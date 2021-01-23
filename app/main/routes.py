@@ -21,15 +21,16 @@ def get_token():
 @bp.route('/write_caption/<token>', methods=['POST'])
 @token_required
 def write_caption(token):
-    print('Token OK')
     caption_json = request.get_json()
     if not caption_json:
         abort(403)
     caption_check = Caption.query.filter_by(video_id=caption_json['video_id']).first()
     if caption_check:
         return {'message':caption_json['video_id']+' already collected'}
-    caption = Caption(text=caption_json['text'], start=caption_json['start'], duration=caption_json['duration'], video_id=caption_json['video_id'])
-    db.session.add(caption)
+    for caption_request in caption_json['caption']:
+        caption = Caption(text=caption_request['text'], start=caption_request['start'], duration=caption_request['duration'], video_id=caption_json['video_id'])
+        # print(caption.__repr__())
+        db.session.add(caption)        
     db.session.commit()
     return {'message':'הכל בסדר'}
 
@@ -45,7 +46,6 @@ def search_for_caption():
         per_page = int(request.args.get('per_page'))
     except:
         per_page = 10
-    
     captions, total = Caption.search(q, page = page, per_page=per_page)
     captions = [caption.__repr__() for caption in captions.all()]
     return {'captions':captions}

@@ -5,7 +5,6 @@ from app.models import User
 def token_required(function):
     def wrapper(token):
         user = User.verify_reset_token(token)
-        print('hey token_required decor')
         if not user:
             abort(403)
         else:
